@@ -16,7 +16,8 @@ jobs:
       - name: Use Node.js 16.x
         uses: actions/setup-node@v1
         with:
-          node-version: 14.x
+          node-version: 16.x
+          npm-version: 8.5.x
       - name: Install dependencies
         run: npm install
       - name: Build Development App
@@ -58,6 +59,7 @@ jobs:
           mv deploy-.git deploy/.git
           cd deploy
           cp -R ../react-github-actions-build/* .
+          git checkout -b deployment
           git add .
           git commit -m "Update Artifacts ${{github.run_number}}"
           git push origin deployment
