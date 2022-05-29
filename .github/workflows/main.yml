@@ -51,7 +51,7 @@ jobs:
           name: react-github-actions-build
       - name: Push artifacts
         run: |
-          git clone --depth 1 --single-branch -b dev git@github.com:sande265/gliteplus.git deploy
+          git clone --depth 1 --single-branch -b deployment git@github.com:sande265/smartifyme-apps.git deploy
           mv deploy/.git deploy-.git
           rm -rf deploy
           mkdir deploy
@@ -60,4 +60,4 @@ jobs:
           cp -R ../react-github-actions-build/* .
           git add .
           git commit -m "Update Artifacts ${{github.run_number}}"
-          git push origin dev
+          git push origin deployment
