@@ -8,7 +8,6 @@ const AppRoutes: React.FC<{}> = () => {
         <BrowserRouter>
             <Routes>
                 <Route path='/' element={<Home />}>
-                    {/* <Route index element={} /> */}
                 </Route>
             </Routes>
         </BrowserRouter>
