@@ -53,7 +53,7 @@ const Home: React.FC<{}> = () => {
     const fetchData: VoidFunction = () => {
         axios.get(`https://nodemcu.sandeshsingh.com.np/api/client?device=${device}`).then(
             (res: any) => {
-                if (res?.status === 200) {
+                if (res?.status === 200) {                    
                     if (state.data != res?.data?.data) {
                         setState({ ...state, data: res?.data?.data })
                     }
@@ -104,7 +104,7 @@ const Home: React.FC<{}> = () => {
         setDevice(value);
     }
 
-    let { data } = state;
+    let { data } = state;    
 
     return (
         <div className={theme}>
@@ -185,29 +185,54 @@ const Home: React.FC<{}> = () => {
                 </header>
                 <div className="body">
                     <section className="section-information" id="information">
-                        <h4 id="conn-info">Device Information</h4>
+                        <h4 id="conn-info">Device & Network Information</h4>
                         <div className="status">
                             <span>Status: </span>
                             <span className={isConnected ? "active" : "inactive"}>{isConnected ? "Connected!" : "Not Connected!"}</span>
                         </div>
                         <div className="status">
+                            <span>Signal Strength: </span>
+                            <span className={isConnected ? "active" : "inactive"}>
+                                {((): any => {
+                                    var power = parseFloat(data?.power);
+                                    if (power >= -30.0) {
+                                        return "Excellent"
+                                    } else if (power >= -60.0) {
+                                        return "Good"
+                                    } else if (power >= -67.0) {
+                                        return "OK"
+                                    } else if (power >= -70.0) {
+                                        return "Weak"
+                                    } else if (power >= -80.0) {
+                                        return "Very Weak"
+                                    } else if (power >= -90.0) {
+                                        return "bad"
+                                    }
+                                })()}
+                            </span>
+                        </div>
+                        <div className="status">
                             <span>IP Address: </span>
-                            <span>{data.local_ip}</span>
+                            <span>{data.client_ip}</span>
                         </div>
                         <div className="status">
                             <span>Mac Address: </span>
-                            <span>{data.mac}</span>
+                            <span>{data.mac_address}</span>
                         </div>
                         <div className="status">
                             <span>Device ID: </span>
-                            <span>{data.device}</span>
+                            <span>{data.device_id}</span>
+                        </div>
+                        <div className="status">
+                            <span>Water Level: </span>
+                            <span>{data.w_percent ? parseInt(data.w_percent) : ""}</span>
                         </div>
                     </section>
                     {isConnected && <section className="section-information" id="information">
                         <h4 id="conn-info">Device State</h4>
                         <div className="status">
                             <span>LED State: </span>
-                            <span className={data?.led * 1 === 1 ? "active" : "inactive"}>{data?.led * 1 === 1 ? "ON" : "OFF"}</span>
+                            <span className={data?.ledState * 1 === 1 ? "active" : "inactive"}>{data?.ledState * 1 === 1 ? "ON" : "OFF"}</span>
                         </div>
                         <h5>Actions</h5>
                         <div className="">
