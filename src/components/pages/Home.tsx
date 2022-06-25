@@ -233,7 +233,7 @@ const Home: React.FC<{}> = () => {
                         </div>
                         <div className="status">
                             <span>Water Level: </span>
-                            <span>{data.w_percent ? parseInt(data.w_percent) : ""}</span>
+                            <span>{data.w_percent ? data.w_percent * 1 === parseInt(data.w_percent) && `${data.w_percent}%` : "NA"}</span>
                         </div>
                     </section>
                     {isConnected && <section className="section-information" id="information">
