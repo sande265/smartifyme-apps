@@ -200,7 +200,7 @@ const Home: React.FC<{}> = () => {
                         </div>
                         <div className="status">
                             <span>Signal Strength: </span>
-                            <span className={parseInt(data?.power) >= -60.0 ? "active" : parseInt(data?.power) <= -67.0 ? "poor" : "inactive"}>
+                            <span className={parseInt(data?.power) >= -60.0 ? "active" : parseInt(data?.power) >= -67.0 ? "poor" : "inactive"}>
                                 {((): any => {
                                     var power = parseFloat(data?.power);
                                     if (power >= -30.0) {
