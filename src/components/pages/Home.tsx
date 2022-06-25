@@ -137,9 +137,6 @@ const Home: React.FC<{}> = () => {
 
     let { data } = state;
 
-    console.log("snackbar", snackbar);
-    
-
     return (
         <div className={theme}>
             {(snackbar.type === "success" || snackbar.type === "error" || snackbar.type === "warning") && 
@@ -233,7 +230,7 @@ const Home: React.FC<{}> = () => {
                         </div>
                         <div className="status">
                             <span>Water Level: </span>
-                            <span>{data.w_percent ? data.w_percent * 1 === parseInt(data.w_percent) && `${data.w_percent}%` : "NA"}</span>
+                            <span>{data.w_percent ? data.w_percent * 1 === parseFloat(data.w_percent) && `${data.w_percent}%` : "NA"}</span>
                         </div>
                     </section>
                     {isConnected && <section className="section-information" id="information">
