@@ -1,13 +1,32 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { SyntheticEvent, useEffect, useState } from "react";
+import React, { SyntheticEvent, useEffect, useReducer, useState } from "react";
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
-import toast, { Toaster } from 'react-hot-toast';
 import { Modal, Button, Form } from 'react-bootstrap';
+import { Snackbar } from "../shared";
 
 const Home: React.FC<{}> = () => {
 
     const location = useLocation();
+
+    const config = {
+        baseUrl: process.env.REACT_APP_BASE_URL,
+    }
+
+    const snackbarReducer = (state: any, action: any) => {
+        switch(action.type) {
+            case "SUCCESS":
+                return { ...state, type: "success", open: action.open, message: action.message };
+            case "ERROR":
+                return { ...state, type: "error", open: action.open, message: action.message };
+            case "WARNING":
+                return { ...state, type: "warning", open: action.open, message: action.message };
+            case "CLOSE":
+                return { ...state, open: action.open, type: "", message: "" };
+            default:
+                return state;
+        }
+    }
 
     const [state, setState] = useState<any>({
         data: {
@@ -19,6 +38,9 @@ const Home: React.FC<{}> = () => {
     const [device, setDevice] = useState<String>('');
     const [modalOpen, setModalOpen] = useState<any>(true);
     const [theme, setTheme] = useState<string>("dark");
+    // const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
+    // const [message, setMessage] = useState<string|number|undefined>("");
+    const [snackbar, dispatch] = useReducer(snackbarReducer, { type: "", message: "", open: false });
 
     useEffect(() => {
         getAllClients()
@@ -42,6 +64,10 @@ const Home: React.FC<{}> = () => {
     //     return () => clearInterval(interval);
     // }, [device])
 
+    const toggleSnackbar: Function = (type: string, message: string) => {
+        dispatch({ type: type.toUpperCase(), message: message, open: true })
+    }
+
     const checkAndSetData: VoidFunction = () => {
         if (state?.devices?.includes(device)) {
             setConnected(true);
@@ -52,51 +78,51 @@ const Home: React.FC<{}> = () => {
     }
 
     const fetchData: VoidFunction = () => {
-        axios.get(`https://nodemcu.sandeshsingh.com.np/api/client?device=${device}`).then(
+        axios.get(`${config.baseUrl}/api/client?device=${device}`).then(
             (res: any) => {
-                if (res?.status === 200) {                    
+                if (res?.status === 200) {
                     if (state.data !== res?.data?.data) {
                         setState({ ...state, data: res?.data?.data })
                     }
                 } else {
                     setState({ ...state, data: {} })
-                    toast.error("Failed to fetch data")
+                    toggleSnackbar("error", "Failed to fetch data");
                 }
             }
         ).catch(({ response: { data } }) => {
             setConnected(false)
-            toast.error(data?.message);
+            toggleSnackbar("error", data?.message);
             setState({ ...state, data: {}, devices: [] })
         })
     }
 
     const getAllClients: VoidFunction = () => {
-        axios.get(`https://nodemcu.sandeshsingh.com.np/api/clients`).then(
+        axios.get(`${config.baseUrl}/api/clients`).then(
             (res: any) => {
                 if (res?.status === 200) {
                     setState({ ...state, devices: res?.data?.clients })
                 } else {
                     setState({ ...state, data: {} })
-                    toast.error("Failed to fetch devices data")
+                    toggleSnackbar("error", "Failed to fetch devices data")
                 }
             }
         ).catch(({ response: { data } }) => {
-            toast.error(data?.message);
+            toggleSnackbar("error", data?.message);
         })
     }
 
     const notifyClient: Function = (type: String) => {
-        axios.post(`https://nodemcu.sandeshsingh.com.np/api/notify-client`, { device: device, payload: type }).then(
+        axios.post(`${config.baseUrl}/api/notify-client`, { device: device, payload: type }).then(
             (res: any) => {
                 if (res?.status === 200) {
-                    toast.success(res?.data?.data?.message);
+                    toggleSnackbar("success", res?.data?.data?.message);
                     fetchData()
                 } else {
-                    toast.error(res?.data?.message)
+                    toggleSnackbar("error",res?.data?.message)
                 }
             }
         ).catch(({ response: { data } }) => {
-            toast.error(data?.message);
+            toggleSnackbar("error",data?.message);
         })
     }
 
@@ -105,44 +131,25 @@ const Home: React.FC<{}> = () => {
         setDevice(value);
     }
 
-    let { data } = state;    
+    const closeSnackbar = () => {
+        dispatch({ type: "CLOSE", open: false });
+    }
+
+    let { data } = state;
+
+    console.log("snackbar", snackbar);
+    
 
     return (
         <div className={theme}>
-            <Toaster
-                position="bottom-center"
-                reverseOrder={false}
-                gutter={8}
-                containerClassName=""
-                containerStyle={{}}
-                toastOptions={{
-                    // Define default options
-                    className: '',
-                    duration: 5000,
-                    style: {
-                        background: '#363636',
-                        color: '#fff',
-                        padding: 8,
-                        width: '100%',
-                        textAlign: "center"
-                    },
-                    // Default options for specific types
-                    success: {
-                        duration: 5000,
-                        theme: {
-                            primary: 'green',
-                            secondary: 'black',
-                        },
-                    },
-                    error: {
-                        duration: 5000000,
-                        theme: {
-                            primary: "red",
-                            secondary: "white"
-                        }
-                    }
-                }}
-            />
+            {(snackbar.type === "success" || snackbar.type === "error" || snackbar.type === "warning") && 
+            <Snackbar 
+                type={snackbar.type}
+                open={snackbar.open} 
+                message={snackbar.message}
+                closeAlert={() => closeSnackbar()}  
+                duration={6000}
+            />}
             {!device &&
                 <Modal
                     show={modalOpen}
@@ -150,7 +157,7 @@ const Home: React.FC<{}> = () => {
                     aria-labelledby="contained-modal-title-vcenter"
                     centered
                 >
-                    <Modal.Header closeButton>
+                    <Modal.Header closeButton onClick={() => setModalOpen(false)}>
                         <Modal.Title id="contained-modal-title-vcenter">
                             Select Device
                         </Modal.Title>
@@ -193,7 +200,7 @@ const Home: React.FC<{}> = () => {
                         </div>
                         <div className="status">
                             <span>Signal Strength: </span>
-                            <span className={isConnected ? "active" : "inactive"}>
+                            <span className={parseInt(data?.power) >= -60.0 ? "active" : parseInt(data?.power) <= -67.0 ? "poor" : "inactive"}>
                                 {((): any => {
                                     var power = parseFloat(data?.power);
                                     if (power >= -30.0) {

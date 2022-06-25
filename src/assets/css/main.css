@@ -95,6 +95,13 @@ body {
     background-color: #00FFAB33;
 }
 
+.status>.poor {
+    border: 1px solid #cc5500;
+    border-radius: 24px;
+    padding: 4px 8px;
+    background-color: #cc550033;
+}
+
 .input-group {
     display: flex;
     flex-direction: row;
