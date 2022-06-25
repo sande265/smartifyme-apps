@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { SyntheticEvent, useEffect, useState } from "react";
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
@@ -29,17 +30,17 @@ const Home: React.FC<{}> = () => {
         }
     }, [device])
 
-    useEffect(() => {
-        let retrys: number = 0;
-        const interval = setInterval(() => {
-            if (device && retrys <= 5) {
-                getAllClients();
-                checkAndSetData();
-                ++retrys;
-            }
-        }, 10000);
-        return () => clearInterval(interval);
-    }, [device])
+    // useEffect(() => {
+    //     let retrys: number = 0;
+    //     const interval = setInterval(() => {
+    //         if (device && retrys <= 5) {
+    //             getAllClients();
+    //             checkAndSetData();
+    //             ++retrys;
+    //         }
+    //     }, 10000);
+    //     return () => clearInterval(interval);
+    // }, [device])
 
     const checkAndSetData: VoidFunction = () => {
         if (state?.devices?.includes(device)) {
@@ -54,7 +55,7 @@ const Home: React.FC<{}> = () => {
         axios.get(`https://nodemcu.sandeshsingh.com.np/api/client?device=${device}`).then(
             (res: any) => {
                 if (res?.status === 200) {                    
-                    if (state.data != res?.data?.data) {
+                    if (state.data !== res?.data?.data) {
                         setState({ ...state, data: res?.data?.data })
                     }
                 } else {
@@ -134,7 +135,7 @@ const Home: React.FC<{}> = () => {
                         },
                     },
                     error: {
-                        duration: 5000,
+                        duration: 5000000,
                         theme: {
                             primary: "red",
                             secondary: "white"
